@@ -12,6 +12,8 @@ Foreman::Application.routes.draw do
         resources :operatingsystems, :except => [:new, :edit]
       end
 
+      resources :kube, :only => [:index, :show, :create, :destroy]
+
       resources :audits, :only => [:index, :show]
 
       resources :auth_source_ldaps, :except => [:new, :edit] do

@@ -1,0 +1,40 @@
+<%#
+kind: provision
+name: Kickstart default
+oses:
+- Atomic
+%>
+<%#
+This template accepts the following parameters:
+- lang: string (default="en_US.UTF-8")
+- keyboard: string (default="us")
+- time-zone: string (default="UTC")
+%>
+<%#
+See http://www.projectatomic.io/docs/fedora_atomic_bare_metal_installation/
+%>
+
+lang <%= @host.params['lang'] || 'en_US.UTF-8' %>
+keyboard <%= @host.params['keyboard'] || 'us' %>
+timezone --utc <%= @host.params['time-zone'] || 'UTC' %>
+zerombr
+clearpart --all --initlabel
+autopart
+rootpw --iscrypted <%= root_pass %>
+
+bootloader --timeout=3 --extlinux
+ostreesetup --nogpg --osname=fedora-atomic-host --remote=installmedia --url=file:///install/ostree --ref=fedora-atomic/rawhide/x86_64/server/docker-host-systemd
+
+
+%post
+logger "Starting anaconda <%= @host %> postinstall"
+exec < /dev/tty3 > /dev/tty3
+#changing to VT 3 so that we can see whats going on....
+/usr/bin/chvt 3
+(
+# Inform the build system that we are done with curl since wget is not part of atomic
+echo "Informing Foreman that we are built"
+curl -s -k <%= foreman_url %> 2>&1 /dev/null
+) 2>&1 | tee /root/install.post.log
+exit 0
+%end

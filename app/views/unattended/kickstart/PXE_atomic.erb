@@ -1,0 +1,11 @@
+<%#
+kind: PXELinux
+name: Atomic PXELinux
+oses:
+- Atomic
+%>
+DEFAULT atomic
+
+LABEL atomic
+    KERNEL <%= @kernel %>
+    APPEND initrd=<%= @initrd %>
